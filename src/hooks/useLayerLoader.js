@@ -1,12 +1,24 @@
 import { useState, useEffect } from "react";
 import { GeoJsonLayer } from "@deck.gl/layers";
 import { FlyToInterpolator } from "@deck.gl/core";
+import { ScatterplotLayer } from "@deck.gl/layers";
 import { easeCubic } from "d3-ease";
 import {
   FRENCH_REGIONS,
   FRENCH_DEPARTEMENTS,
   FRENCH_COMMUNES,
 } from "../config";
+
+import EOLIEN_DATA from '../json/EOLIEN.json';
+import SOLAR_DATA from '../json/SOLAR.json';
+
+
+const normalizePower = (puissance) => {
+  const parsedPuissance = typeof puissance === "string" ? puissance : puissance.toString();
+  const parsed = parseFloat(parsedPuissance.replace(",", "."));
+  return parsed * 100;
+};
+
 
 /**
  * Custom hook to manage the loading and interaction of map layers.
@@ -38,6 +50,8 @@ const useLayerLoader = ({
   const [layers, setLayers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
+  
+
   useEffect(() => {
     if (previousLayer.current !== activeLayer) {
       setIsLoading(true);
@@ -45,7 +59,7 @@ const useLayerLoader = ({
     }
 
     const loadLayer = async () => {
-      let layerData;
+      let baseLayer = null;
 
       const commonLayerSettings = {
         stroked: true,
@@ -82,7 +96,7 @@ const useLayerLoader = ({
 
       switch (activeLayer) {
         case "region":
-          layerData = new GeoJsonLayer({
+          baseLayer = new GeoJsonLayer({
             id: "region-layer",
             data: FRENCH_REGIONS,
             ...commonLayerSettings,
@@ -100,7 +114,7 @@ const useLayerLoader = ({
           break;
 
         case "departement":
-          layerData = new GeoJsonLayer({
+          baseLayer = new GeoJsonLayer({
             id: "departement-layer",
             data: FRENCH_DEPARTEMENTS,
             ...commonLayerSettings,
@@ -118,7 +132,7 @@ const useLayerLoader = ({
           break;
 
         case "commune":
-          layerData = new GeoJsonLayer({
+          baseLayer = new GeoJsonLayer({
             id: "commune-layer",
             data: FRENCH_COMMUNES,
             ...commonLayerSettings,
@@ -136,10 +150,38 @@ const useLayerLoader = ({
           break;
 
         default:
-          layerData = null;
+          baseLayer = null;
       }
 
-      setLayers([layerData]);
+      const windPlotLayer = new ScatterplotLayer({
+        id: "windPlot-layer",
+        data: EOLIEN_DATA.map((d) => ({
+          ...d,
+          latitude: parseFloat(d.latitude.replace(",", ".")),
+          longitude: parseFloat(d.longitude.replace(",", ".")),
+          puissance: normalizePower(d.puissance),
+        })),
+        getPosition: (d) => [d.latitude, d.longitude],
+        getRadius: (d) => d.puissance,
+        getFillColor: [0, 224, 203, 255],
+        pickable: true,
+      });
+
+      const solarPlotLayer = new ScatterplotLayer({
+        id: "solarPlot-layer",
+        data: SOLAR_DATA.map((d) => ({
+          ...d,
+          latitude: parseFloat(d.lat),
+          longitude: parseFloat(d.lon),
+          puissance:d.puissance_crete,
+        })),
+        getPosition: (d) => [d.lon, d.lat],
+        getRadius: (d) => 1000,
+        getFillColor: [255, 142, 18, 255],
+        pickable: true,
+      });
+
+      setLayers([baseLayer, windPlotLayer, solarPlotLayer]);
       setTimeout(() => setIsLoading(false), 1000);
     };
 
