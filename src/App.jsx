@@ -1,14 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { INITIAL_VIEW_STATE } from './config';
+import Header from "./components/Header";
 import MapContainer from './components/MapContainer';
 import Tooltip from './components/Tooltip';
 import Loader from './components/Loader';
 import useLayerLoader from './hooks/useLayerLoader';
 import ProductionInformation from './components/ProductionInformation';
+import MapRightFilters from "./components/MapRightFilters";
 import CurrentDate from './components/CurrentDate';
 
-import './styles/productionInformation.css';
-
+import "./styles/header.css";
+import "./styles/productionInformation.css";
+import "./styles/mapRightFilters.css";
 
 /**
  * The main application component that renders a map and handles user interactions.
@@ -51,6 +54,14 @@ function App() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const previousLayer = useRef(activeLayer);
 
+  const handleZoomIn = () => {
+    setViewState(prevState => ({ ...prevState, zoom: prevState.zoom + 1 }));
+  };
+
+  const handleZoomOut = () => {
+    setViewState(prevState => ({ ...prevState, zoom: prevState.zoom - 1 }));
+  };
+
   // Monitor zoom level and adjust active layer based on zoom thresholds
   useEffect(() => {
     const { zoom } = viewState;
@@ -86,6 +97,7 @@ function App() {
   // Render the map, loader, and tooltip components
   return (
     <>
+      <Header />
       <div className="container">
         <CurrentDate />
         <div style={{ width: "20px" }}></div>
@@ -96,6 +108,10 @@ function App() {
           viewState={viewState}
           onViewStateChange={(newViewState) => setViewState(newViewState)}
           layers={layers} />
+        <MapRightFilters 
+          onZoomIn={handleZoomIn} 
+          onZoomOut={handleZoomOut}
+        />
         {isLoading && <Loader />}
         {hoveredFeature && <Tooltip feature={hoveredFeature} mousePosition={mousePosition} />}
       </div>

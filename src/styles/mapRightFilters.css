@@ -1,0 +1,64 @@
+.map-controls {
+    position: absolute;
+    top: 120px;
+    right: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    z-index: 1;
+  }
+  
+  .zoom-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 0px 5px;
+  }
+
+  .filter-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .control-button {
+    width: 35px;
+    height: 35px;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    transition: background-color 0.2s;
+  }
+  
+  .control-button-zoom-in {
+    border-bottom: 1.5px solid;
+    border-color: #3E4491;
+    border-radius: 4px 4px 0px 0px;
+  }
+
+  .control-button-zoom-out {
+    border-radius: 0px 0px 4px 4px;
+  }
+
+  .control-button-filter {
+    border-radius: 4px;
+  }
+
+  .control-button:hover {
+    background-color: #f0f0f0;
+  }
+
+  .control-button-zoom-in,
+  .control-button-zoom-out {
+    color: #3E4491;
+  }
+
+  .control-button-filter {
+    color: rgb(95, 95, 95);
+  }
+  
+  button:nth-child(3) {
+    color: #3E4491;
+  }
+  
