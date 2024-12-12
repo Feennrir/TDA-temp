@@ -1,0 +1,41 @@
+.chart-overlay {
+  position: fixed;
+  top: 0;
+  right: -100%; /* Start off-screen */
+  width: 100%;
+  height: 100%;
+  background: white;
+  box-shadow: -4px 0px 10px rgba(0, 0, 0, 0.3);
+  /* z-index: 1000; */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transform: translateX(0); /* Default position */
+  transition: transform 0.3s ease-in-out; /* Smooth slide-in */
+}
+
+.chart-overlay.visible {
+  transform: translateX(-100%); /* Slide into view */
+}
+
+.close-button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: red;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.chart-container {
+  width: 90%; /* Slight padding */
+  height: 90%; /* Slight padding */
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

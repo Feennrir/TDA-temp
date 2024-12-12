@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faMinus, faMap, faChartLine, faBolt, faBars, faPaintBrush, faPlug } from '@fortawesome/free-solid-svg-icons';
 import '../styles/mapRightFilters.css';
 
-const MapRightFilters = ({ onZoomIn, onZoomOut }) => {
+const MapRightFilters = ({ onZoomIn, onZoomOut, onChartClick, onMapClick }) => {
   return (
     <div className="map-controls">
       <div className="zoom-controls">
@@ -15,10 +15,16 @@ const MapRightFilters = ({ onZoomIn, onZoomOut }) => {
         </button>
       </div>
       <div className="filter-controls">
-        <button className="control-button control-button-filter">
+        <button
+          className="control-button control-button-filter"
+          onClick={onMapClick}
+        >
           <FontAwesomeIcon icon={faMap} className="fa-icon" />
         </button>
-        <button className="control-button control-button-filter">
+        <button
+          className="control-button control-button-filter"
+          onClick={onChartClick}
+        >
           <FontAwesomeIcon icon={faChartLine} className="fa-icon" />
         </button>
         <button className="control-button control-button-filter">

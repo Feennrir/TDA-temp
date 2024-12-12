@@ -6,18 +6,12 @@ import { easeCubic } from "d3-ease";
 import {
   FRENCH_REGIONS,
   FRENCH_DEPARTEMENTS,
-  FRENCH_COMMUNES,
 } from "../config";
 
-import EOLIEN_DATA from '../json/EOLIEN.json';
-import SOLAR_DATA from '../json/SOLAR.json';
+import { normalizePower, calculateCommuneCenter } from "../utils";
 
-
-const normalizePower = (puissance) => {
-  const parsedPuissance = typeof puissance === "string" ? puissance : puissance.toString();
-  const parsed = parseFloat(parsedPuissance.replace(",", "."));
-  return parsed * 100;
-};
+import FRENCH_COMMUNES from '../json/COMMUNE.json';
+import REGISTRE_NUCLEAIRE from '../json/REGISTRE_NUCLEAIRE.json';
 
 
 /**
@@ -153,35 +147,34 @@ const useLayerLoader = ({
           baseLayer = null;
       }
 
-      const windPlotLayer = new ScatterplotLayer({
-        id: "windPlot-layer",
-        data: EOLIEN_DATA.map((d) => ({
-          ...d,
-          latitude: parseFloat(d.latitude.replace(",", ".")),
-          longitude: parseFloat(d.longitude.replace(",", ".")),
-          puissance: normalizePower(d.puissance),
-        })),
-        getPosition: (d) => [d.latitude, d.longitude],
-        getRadius: (d) => d.puissance,
-        getFillColor: [0, 224, 203, 255],
+      const nuclearData = REGISTRE_NUCLEAIRE.map((nuclear) => {
+        const commune = FRENCH_COMMUNES.features.find(
+          (commune) => commune.properties.INSEE_COM === nuclear.codeINSEECommune
+        );
+        if (commune) {
+          const center = calculateCommuneCenter(commune.geometry.coordinates);
+          return {
+            ...nuclear,
+            latitude: center[1],
+            longitude: center[0],
+            puissance: parseFloat(nuclear.maxPuis),
+          };
+        }
+        return null;
+      }).filter((d) => d !== null);
+
+
+      const nuclearPlotLayer = new ScatterplotLayer({
+        id: "nuclearPlot-layer",
+        data: nuclearData,
+        getPosition: (d) => [d.longitude, d.latitude],
+        getRadius: () => activeLayer === "region" ? 10000 : activeLayer === "departement" ? 5000 : 1000,
+        getFillColor: [128, 0, 128, 255],
         pickable: true,
       });
 
-      const solarPlotLayer = new ScatterplotLayer({
-        id: "solarPlot-layer",
-        data: SOLAR_DATA.map((d) => ({
-          ...d,
-          latitude: parseFloat(d.lat),
-          longitude: parseFloat(d.lon),
-          puissance:d.puissance_crete,
-        })),
-        getPosition: (d) => [d.lon, d.lat],
-        getRadius: (d) => 1000,
-        getFillColor: [255, 142, 18, 255],
-        pickable: true,
-      });
-
-      setLayers([baseLayer, windPlotLayer, solarPlotLayer]);
+      // setLayers([baseLayer, windPlotLayer, solarPlotLayer]);
+      setLayers([baseLayer, nuclearPlotLayer]);
       setTimeout(() => setIsLoading(false), 1000);
     };
 

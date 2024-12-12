@@ -8,6 +8,7 @@ import useLayerLoader from './hooks/useLayerLoader';
 import ProductionInformation from './components/ProductionInformation';
 import MapRightFilters from "./components/MapRightFilters";
 import CurrentDate from './components/CurrentDate';
+import ChartOverlay from './components/ChartOverlay';
 
 import "./styles/header.css";
 import "./styles/productionInformation.css";
@@ -52,6 +53,8 @@ function App() {
   const [clickedFeature, setClickedFeature] = useState(null);
   const [viewState, setViewState] = useState(INITIAL_VIEW_STATE);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [isOverlayVisible, setOverlayVisible] = useState(false);
+
   const previousLayer = useRef(activeLayer);
 
   const handleZoomIn = () => {
@@ -61,6 +64,15 @@ function App() {
   const handleZoomOut = () => {
     setViewState(prevState => ({ ...prevState, zoom: prevState.zoom - 1 }));
   };
+
+  const handleChartClick = () => {
+    setOverlayVisible(prevState => !prevState); // Toggle visibility
+  };
+
+  const handleMapClick = () => {
+    setOverlayVisible(false); // Hide chart
+  };
+
 
   // Monitor zoom level and adjust active layer based on zoom thresholds
   useEffect(() => {
@@ -108,10 +120,13 @@ function App() {
           viewState={viewState}
           onViewStateChange={(newViewState) => setViewState(newViewState)}
           layers={layers} />
-        <MapRightFilters 
-          onZoomIn={handleZoomIn} 
+        <MapRightFilters
+          onZoomIn={handleZoomIn}
           onZoomOut={handleZoomOut}
+          onChartClick={handleChartClick}
+          onMapClick={handleMapClick}
         />
+        <ChartOverlay isVisible={isOverlayVisible} />
         {isLoading && <Loader />}
         {hoveredFeature && <Tooltip feature={hoveredFeature} mousePosition={mousePosition} />}
       </div>
