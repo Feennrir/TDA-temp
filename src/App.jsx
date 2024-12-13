@@ -9,10 +9,12 @@ import ProductionInformation from './components/ProductionInformation';
 import MapRightFilters from "./components/MapRightFilters";
 import CurrentDate from './components/CurrentDate';
 import ChartOverlay from './components/ChartOverlay';
+import Menu from './components/Menu';
 
 import "./styles/header.css";
 import "./styles/productionInformation.css";
 import "./styles/mapRightFilters.css";
+import './styles/menu.css';
 
 /**
  * The main application component that renders a map and handles user interactions.
@@ -115,6 +117,7 @@ function App() {
         <div style={{ width: "20px" }}></div>
         <ProductionInformation clickedFeature={clickedFeature} />
       </div>
+      <Menu />
       <div onMouseMove={handleMouseMove}>
         <MapContainer
           viewState={viewState}

@@ -1,0 +1,41 @@
+.menuContainer{  
+    position: fixed;
+    left: 0;
+    top: 15%; /* Pour positionner le haut de la div */
+    height: 60vh; /* Pour que la div prenne toute la hauteur de la fenêtre */
+    width: 210px; /* Largeur de la div */
+    z-index: 1;
+    display: flex;
+}
+
+.menu{
+  position: relative;
+  height: 100%;
+  background-color: white;
+  border-radius: 5px;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  flex: 9;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease-in-out;
+  overflow: auto;
+}
+.menu.open {
+    transform: translateX(0);
+}
+
+.buttonMenu{
+  color: #17417a;
+  position: relative;
+  background-color: white;
+  border-radius: 0 5px 5px 0;
+  flex: 1;
+  height: 10%;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  top: 10%;
+  border: none;
+  transform: translateX(-560%);
+  transition: transform 0.3s ease-in-out;
+}
+.buttonMenu.open{
+    transform: translateX(0);
+  }
