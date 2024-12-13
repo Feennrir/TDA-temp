@@ -22,5 +22,5 @@ export const calculateCommuneCenter = (coordinates) => {
 export const normalizePower = (puissance) => {
   const parsedPuissance = typeof puissance === "string" ? puissance : puissance.toString();
   const parsed = parseFloat(parsedPuissance.replace(",", "."));
-  return parsed * 100;
+  return parsed;
 };

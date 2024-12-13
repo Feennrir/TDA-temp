@@ -12,6 +12,7 @@ import { normalizePower, calculateCommuneCenter } from "../utils";
 
 import FRENCH_COMMUNES from '../json/COMMUNE.json';
 import REGISTRE_NUCLEAIRE from '../json/REGISTRE_NUCLEAIRE.json';
+import REGISTRE_EOLIEN from '../json/REGISTRE_EOLIEN.json';
 
 
 /**
@@ -54,6 +55,8 @@ const useLayerLoader = ({
 
     const loadLayer = async () => {
       let baseLayer = null;
+      const communeMap = new Map(FRENCH_COMMUNES.features.map(commune => [commune.properties.INSEE_COM, commune]));
+      
 
       const commonLayerSettings = {
         stroked: true,
@@ -87,6 +90,13 @@ const useLayerLoader = ({
           getLineColor: [hoveredFeature, clickedFeature],
         },
       };
+
+      FRENCH_COMMUNES.features.forEach((commune) => {
+        if (!commune.center) {
+          const center = calculateCommuneCenter(commune.geometry.coordinates);
+          commune.center = center;
+        }
+      });
 
       switch (activeLayer) {
         case "region":
@@ -147,16 +157,17 @@ const useLayerLoader = ({
           baseLayer = null;
       }
 
+
+      /**
+       * NUCLEAR LAYER
+       */
       const nuclearData = REGISTRE_NUCLEAIRE.map((nuclear) => {
-        const commune = FRENCH_COMMUNES.features.find(
-          (commune) => commune.properties.INSEE_COM === nuclear.codeINSEECommune
-        );
+        const commune = communeMap.get(nuclear.codeINSEECommune);
         if (commune) {
-          const center = calculateCommuneCenter(commune.geometry.coordinates);
           return {
             ...nuclear,
-            latitude: center[1],
-            longitude: center[0],
+            latitude: commune.center[1],
+            longitude: commune.center[0],
             puissance: parseFloat(nuclear.maxPuis),
           };
         }
@@ -168,13 +179,40 @@ const useLayerLoader = ({
         id: "nuclearPlot-layer",
         data: nuclearData,
         getPosition: (d) => [d.longitude, d.latitude],
-        getRadius: () => activeLayer === "region" ? 10000 : activeLayer === "departement" ? 5000 : 1000,
+        getRadius: (d) => activeLayer === "region" ? d.puissance / 75 : activeLayer === "departement" ? d.puissance / 150 : d.puissance / 500,
         getFillColor: [128, 0, 128, 255],
         pickable: true,
       });
 
-      // setLayers([baseLayer, windPlotLayer, solarPlotLayer]);
-      setLayers([baseLayer, nuclearPlotLayer]);
+      /**
+       * WIND LAYER
+       */
+      const windData = REGISTRE_EOLIEN.map((eolien) => {
+        const commune = communeMap.get(eolien.codeINSEECommune);
+        if (commune) {
+          return {
+            ...eolien,
+            latitude: commune.center[1],
+            longitude: commune.center[0],
+            puissance: normalizePower(eolien.maxPuis),
+          };
+        }
+        return null;
+      }).filter((d) => d !== null);
+
+
+      const windPlotLayer = new ScatterplotLayer({
+        id: "windPlot-layer",
+        data: windData,
+        getPosition: (d) => [d.longitude, d.latitude],
+        getRadius: (d) => activeLayer === "region" ? d.puissance /20 : activeLayer === "departement" ? d.puissance / 40 : d.puissance / 100,
+        getFillColor: [0, 128, 128, 255],
+        pickable: true,
+      });
+
+
+
+      setLayers([baseLayer, nuclearPlotLayer, windPlotLayer]);
       setTimeout(() => setIsLoading(false), 1000);
     };
 
