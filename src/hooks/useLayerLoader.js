@@ -180,7 +180,8 @@ const useLayerLoader = ({
         data: nuclearData,
         getPosition: (d) => [d.longitude, d.latitude],
         getRadius: (d) => activeLayer === "region" ? d.puissance / 75 : activeLayer === "departement" ? d.puissance / 150 : d.puissance / 500,
-        getFillColor: [128, 0, 128, 255],
+        // Hex to RGB : #D13A8C
+        getFillColor: [209, 58, 140, 255],
         pickable: true,
       });
 
@@ -206,7 +207,8 @@ const useLayerLoader = ({
         data: windData,
         getPosition: (d) => [d.longitude, d.latitude],
         getRadius: (d) => activeLayer === "region" ? d.puissance /20 : activeLayer === "departement" ? d.puissance / 40 : d.puissance / 100,
-        getFillColor: [0, 128, 128, 255],
+        // Hex to RGB : #00E0CB
+        getFillColor: [0, 224, 203, 255],
         pickable: true,
       });
 
